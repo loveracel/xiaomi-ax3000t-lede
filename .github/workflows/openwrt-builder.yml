@@ -96,8 +96,7 @@ jobs:
     - name: Install feeds
       run: |
         cd openwrt && ./scripts/feeds install -a
-        rm -rf feeds/packages/net/open-app-filter
-        rm -rf package/feeds/packages/open-app-filter
+       
 
     - name: Load custom configuration
       run: |
