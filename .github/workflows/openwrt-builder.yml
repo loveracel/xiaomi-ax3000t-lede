@@ -105,6 +105,18 @@ jobs:
         chmod +x $DIY_P2_SH
         cd openwrt
         $GITHUB_WORKSPACE/$DIY_P2_SH
+        # 确保不启用测试内核（防止覆盖成 TESTING_PATCHVER）
+        sed -i '/CONFIG_TESTING_KERNEL/d' .config
+        echo '# CONFIG_TESTING_KERNEL is not set' >> .config
+
+        # 把 mediatek 和 filogic 子目标的内核版本都改成 6.12
+        sed -i -E 's/(^|\s)KERNEL_PATCHVER\s*:=.*/\1KERNEL_PATCHVER:=6.12/' target/linux/mediatek/Makefile
+        [ -f target/linux/mediatek/filogic/target.mk ] && \
+        sed -i -E 's/(^|\s)KERNEL_PATCHVER\s*:=.*/\1KERNEL_PATCHVER:=6.12/' target/linux/mediatek/filogic/target.mk
+
+        # 打印确认修改结果以及 filogic 是否存在 6.12 配置
+        grep -rn "KERNEL_.*PATCHVER" target/linux/mediatek/
+        ls -la target/linux/mediatek/filogic/config-* 2>/dev/null || true
     # ================= 插入开始 =================
     - name: Compile gn with GCC 11 (Final Fix)
       id: compile_gn
